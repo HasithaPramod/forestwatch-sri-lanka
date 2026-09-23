@@ -22,16 +22,6 @@ const envSchema = z
     SUPABASE_STORAGE_BUCKET: z.string().optional().default(''),
   })
   .superRefine((value, ctx) => {
-    const onVercel = process.env.VERCEL === '1';
-    if (onVercel && value.STORAGE_PROVIDER === 'local') {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['STORAGE_PROVIDER'],
-        message:
-          'Vercel has no persistent disk. Set STORAGE_PROVIDER=supabase plus SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET from your dashboard. Never invent those values.',
-      });
-    }
-
     if (value.STORAGE_PROVIDER === 'supabase') {
       (['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_STORAGE_BUCKET'] as const).forEach((key) => {
         if (!value[key]) {
