@@ -6,10 +6,11 @@ describe('ForestWatchApiClient', () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({
-        success: true,
-        data: { status: 'ok' },
-      }),
+      text: async () =>
+        JSON.stringify({
+          success: true,
+          data: { status: 'ok' },
+        }),
     });
 
     const client = new ForestWatchApiClient({
@@ -28,10 +29,11 @@ describe('ForestWatchApiClient', () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
-      json: async () => ({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid request' },
-      }),
+      text: async () =>
+        JSON.stringify({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Invalid request' },
+        }),
     });
 
     const client = new ForestWatchApiClient({
@@ -46,10 +48,11 @@ describe('ForestWatchApiClient', () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({
-        success: true,
-        data: { available: true, confirmedXp: 0, rewardsActive: true },
-      }),
+      text: async () =>
+        JSON.stringify({
+          success: true,
+          data: { available: true, confirmedXp: 0, rewardsActive: true },
+        }),
     });
     const client = new ForestWatchApiClient({
       baseUrl: 'http://localhost:3001/api/v1',
@@ -63,5 +66,20 @@ describe('ForestWatchApiClient', () => {
     expect(client).not.toHaveProperty('addXp');
     expect(client).not.toHaveProperty('discoverSpecies');
     expect(client).not.toHaveProperty('awardBadge');
+  });
+
+  it('throws when the server returns HTML instead of a JSON envelope', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '<!DOCTYPE html><html><body>Next.js</body></html>',
+    });
+    const client = new ForestWatchApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+    await expect(client.listNearbyPlantations({ lat: 6.9, lng: 79.8 })).rejects.toMatchObject({
+      code: 'API_UNAVAILABLE',
+    });
   });
 });

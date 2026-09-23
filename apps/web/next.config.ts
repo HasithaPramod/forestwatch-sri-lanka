@@ -2,8 +2,7 @@ import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const publicApiUrl =
-  process.env.NEXT_PUBLIC_API_URL ??
-  (process.env.VERCEL === '1' ? '/api/v1' : 'http://localhost:3001/api/v1');
+  process.env.NEXT_PUBLIC_API_URL ?? '/api/v1';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

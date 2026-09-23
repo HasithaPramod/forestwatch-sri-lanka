@@ -108,7 +108,9 @@ export function MapExplorer() {
                   })
                   .then((page) => setNearby(page.items))
                   .catch((caught: unknown) => {
-                    setLocateError(isAuthError(caught) ? caught.message : 'Could not load nearby plantations');
+                    setLocateError(
+                      caught instanceof Error ? caught.message : 'Could not load nearby plantations',
+                    );
                   });
               },
               () => setLocateError('Location permission was not granted. No nearby list is invented.'),

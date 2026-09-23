@@ -72,9 +72,10 @@ pnpm db:migrate
 
 | Name | Value |
 | --- | --- |
-| `NEXT_PUBLIC_API_URL` | `https://<api-project>.vercel.app/api/v1` |
+| `NEXT_PUBLIC_API_URL` | `/api/v1` (default — same origin; Next.js proxies to Nest) |
+| `API_ORIGIN` | `https://<api-project>.vercel.app` (no `/api/v1` suffix) |
 
-If this is unset, the web build still succeeds and calls `/api/v1` on the same host until you add the API project and redeploy.
+Nearby, map, and login call `/api/v1` on the web host. Without `API_ORIGIN`, those routes return JSON `API_UNAVAILABLE` instead of an HTML 404.
 
 ### 3. API project
 
@@ -103,7 +104,7 @@ Refresh cookies use `SameSite=None; Secure` in production so the web origin can 
 
 ### 4. After both URLs exist
 
-Set `NEXT_PUBLIC_API_URL` on the web project to the API origin including `/api/v1`, then redeploy web. Set `WEB_ORIGIN` on the API project to the web origin, then redeploy API.
+Set `API_ORIGIN` on the web project to the API origin **without** `/api/v1`, then redeploy web. Set `WEB_ORIGIN` on the API project to the web origin, then redeploy API.
 
 Preview deployments on `*.vercel.app` are allowed when `VERCEL=1`.
 

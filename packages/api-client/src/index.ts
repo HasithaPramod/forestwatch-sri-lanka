@@ -726,7 +726,17 @@ export class ForestWatchApiClient {
       body: body === undefined ? undefined : multipart ? (body as FormData) : JSON.stringify(body),
     });
 
-    const payload = (await response.json()) as ApiResponse<T>;
+    const text = await response.text();
+    let payload: ApiResponse<T>;
+    try {
+      payload = JSON.parse(text) as ApiResponse<T>;
+    } catch {
+      throw new ForestWatchApiError(
+        'The ForestWatch API is not reachable. Nearby distance is calculated on the server — start apps/api or set API_ORIGIN on Vercel.',
+        response.status || 502,
+        'API_UNAVAILABLE',
+      );
+    }
 
     if (!payload.success) {
       throw new ForestWatchApiError(
