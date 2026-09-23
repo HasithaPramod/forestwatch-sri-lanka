@@ -1,0 +1,19 @@
+{
+  "name": "@forestwatch/validation",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@forestwatch/config": "workspace:*",
+    "@forestwatch/types": "workspace:*",
+    "zod": "^3.25.76"
+  }
+}

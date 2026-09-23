@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  background: #f3eee2;
+  color: #1c1914;
+  overflow-x: clip;
+}
+
+.leaflet-container {
+  font-family: inherit;
+  z-index: 0;
+}

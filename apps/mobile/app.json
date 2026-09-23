@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "ForestWatch Sri Lanka",
+    "slug": "forestwatch-sri-lanka",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "forestwatch",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ForestWatch uses your location to find nearby plantations and to send GPS with monitoring, reports, and inspections. Distance is calculated on the server.",
+        "NSCameraUsageDescription": "ForestWatch uses the camera to attach field photographs to monitoring updates, reports, and inspections.",
+        "NSPhotoLibraryUsageDescription": "ForestWatch can attach an existing photograph to a field update."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#16382c",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#16382c"
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "ForestWatch uses your location to find nearby plantations and to send GPS with field updates. Distance is calculated on the server."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ForestWatch can attach an existing photograph to a field update.",
+          "cameraPermission": "ForestWatch uses the camera to attach field photographs to monitoring updates, reports, and inspections."
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

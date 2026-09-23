@@ -1,0 +1,19 @@
+{
+  "name": "@forestwatch/sri-lanka-locations",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "sl-gnd-dsd-districts": "^2.0.1"
+  }
+}

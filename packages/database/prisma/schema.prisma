@@ -1,0 +1,846 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+enum RoleCode {
+  CITIZEN
+  VOLUNTEER
+  ORGANIZATION_MANAGER
+  FOREST_OFFICER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum CampaignStatus {
+  DRAFT
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum PlantationType {
+  INDIVIDUAL_TREE
+  PLANTATION_SITE
+}
+
+enum LocationVisibility {
+  PUBLIC_EXACT
+  PUBLIC_APPROXIMATE
+  OFFICER_ONLY
+}
+
+enum PlantationVerificationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+enum MonitoringVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum HealthCondition {
+  HEALTHY
+  FAIR
+  STRESSED
+  DAMAGED
+  PARTIALLY_DEAD
+  DEAD
+  MISSING
+  UNKNOWN
+}
+
+enum GeoProximityStatus {
+  ON_SITE
+  NEARBY
+  REMOTE
+  LOCATION_UNAVAILABLE
+}
+
+enum NativeStatus {
+  NATIVE
+  ENDEMIC
+  INTRODUCED
+  UNKNOWN
+}
+
+enum ReportCategory {
+  DEAD_TREES
+  DAMAGED_TREES
+  FIRE_DAMAGE
+  ILLEGAL_CUTTING
+  MISSING_TREES
+  WATER_SHORTAGE
+  PEST_DISEASE
+  INCORRECT_INFORMATION
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  ACTION_REQUIRED
+  RESOLVED
+  REJECTED
+}
+
+enum VerificationSubjectType {
+  PLANTATION
+  MONITORING
+  REPORT
+}
+
+enum VerificationDecision {
+  VERIFIED
+  REJECTED
+  REQUEST_CORRECTION
+}
+
+enum XpTransactionStatus {
+  PENDING
+  CONFIRMED
+  REVOKED
+}
+
+enum MissionType {
+  DAILY
+  WEEKLY
+  CAMPAIGN
+  LOCATION
+  SPECIES
+  COMMUNITY
+  STEWARDSHIP
+  RESCUE
+}
+
+enum MissionStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum UserMissionStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+enum OrganizationType {
+  SCHOOL
+  UNIVERSITY
+  NGO
+  GOVERNMENT
+  PRIVATE
+  COMMUNITY
+}
+
+enum StorageProviderName {
+  local
+  supabase
+  s3
+}
+
+model SystemSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  emailVerifiedAt  DateTime?
+  passwordHash     String
+  displayName      String
+  locale           String    @default("en")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  roles                     UserRole[]
+  sessions                  Session[]
+  emailVerificationTokens   EmailVerificationToken[]
+  passwordResetTokens       PasswordResetToken[]
+  organizationsCreated      Organization[]          @relation("OrganizationCreator")
+  officerAssignments      OfficerAssignment[]
+  campaignsCreated        Campaign[]              @relation("CampaignCreator")
+  plantationsCreated      Plantation[]            @relation("PlantationCreator")
+  plantationImages        PlantationImage[]
+  monitoringUpdates       MonitoringUpdate[]
+  monitoringImages        MonitoringImage[]
+  officerInspections      OfficerInspection[]
+  comments                Comment[]
+  commentReactions        CommentReaction[]
+  reports                 Report[]
+  reportImages            ReportImage[]
+  verifications           Verification[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  pushDevices             PushDevice[]
+  auditLogs               AuditLog[]
+  engagementProfile       EngagementProfile?
+  xpTransactions          XpTransaction[]
+  badges                  UserBadge[]
+  missions                UserMission[]
+  speciesDiscoveries      SpeciesDiscovery[]
+  plantationDiscoveries   PlantationDiscovery[]
+  guardians               PlantationGuardian[]
+  stewardshipStreaks      StewardshipStreak[]
+
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Role {
+  id          String     @id @default(uuid())
+  code        RoleCode   @unique
+  name        String
+  description String?
+  users       UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model Session {
+  id               String    @id @default(uuid())
+  userId           String
+  refreshTokenHash String    @unique
+  userAgent        String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model Organization {
+  id          String           @id @default(uuid())
+  name        String
+  slug        String           @unique
+  description String?
+  type        OrganizationType
+  approved    Boolean          @default(false)
+  createdById String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  createdBy   User             @relation("OrganizationCreator", fields: [createdById], references: [id])
+  campaigns   Campaign[]
+  plantations Plantation[]
+
+  @@index([createdById])
+  @@map("organizations")
+}
+
+model OfficerAssignment {
+  id           String   @id @default(uuid())
+  userId       String
+  provinceCode String?
+  districtCode String?
+  dsdCode      String?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([districtCode])
+  @@index([dsdCode])
+  @@map("officer_assignments")
+}
+
+model Campaign {
+  id                 String         @id @default(uuid())
+  name               String
+  slug               String         @unique
+  description        String
+  bannerImageKey     String?
+  organizerId        String?
+  startDate          DateTime
+  endDate            DateTime?
+  targetTrees        Int?
+  targetAreaHectares Decimal?       @db.Decimal(12, 4)
+  eligibleLocations  Json?
+  status             CampaignStatus @default(DRAFT)
+  visibility         Visibility     @default(PUBLIC)
+  createdById        String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  organizer          Organization?  @relation(fields: [organizerId], references: [id])
+  createdBy          User           @relation("CampaignCreator", fields: [createdById], references: [id])
+  plantations        Plantation[]
+  missions           Mission[]
+  challenges         CommunityChallenge[]
+
+  @@index([status])
+  @@index([organizerId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@map("campaigns")
+}
+
+model Species {
+  id                 String       @id @default(uuid())
+  commonEnglishName  String
+  sinhalaName        String
+  tamilName          String
+  scientificName     String       @unique
+  nativeStatus       NativeStatus @default(UNKNOWN)
+  description        String
+  imageKey           String?
+  active             Boolean      @default(true)
+  plantations        PlantationSpecies[]
+  discoveries        SpeciesDiscovery[]
+
+  @@index([active])
+  @@map("species")
+}
+
+model Plantation {
+  id                  String                         @id @default(uuid())
+  clientUuid          String?                        @unique
+  campaignId          String?
+  name                String
+  description         String?
+  type                PlantationType
+  latitude            Decimal?                       @db.Decimal(10, 7)
+  longitude           Decimal?                       @db.Decimal(10, 7)
+  geom                Unsupported("geometry")?
+  provinceCode        String?
+  districtCode        String?
+  dsdCode             String?
+  gndCode             String?
+  plantingDate        DateTime
+  treeCount           Int
+  areaHectares        Decimal?                       @db.Decimal(12, 4)
+  organizationId      String?
+  createdById         String
+  verificationStatus  PlantationVerificationStatus   @default(SUBMITTED)
+  locationVisibility  LocationVisibility             @default(PUBLIC_APPROXIMATE)
+  createdAt           DateTime                       @default(now())
+  updatedAt           DateTime                       @updatedAt
+  campaign            Campaign?                      @relation(fields: [campaignId], references: [id])
+  organization        Organization?                  @relation(fields: [organizationId], references: [id])
+  createdBy           User                           @relation("PlantationCreator", fields: [createdById], references: [id])
+  species             PlantationSpecies[]
+  images              PlantationImage[]
+  monitoringUpdates   MonitoringUpdate[]
+  inspections         OfficerInspection[]
+  comments            Comment[]
+  reports             Report[]
+  discoveries         PlantationDiscovery[]
+  guardians           PlantationGuardian[]
+
+  @@index([campaignId])
+  @@index([districtCode])
+  @@index([dsdCode])
+  @@index([gndCode])
+  @@index([verificationStatus])
+  @@index([organizationId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@map("plantations")
+}
+
+model PlantationSpecies {
+  plantationId String
+  speciesId    String
+  quantity     Int
+  plantation   Plantation @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  species      Species    @relation(fields: [speciesId], references: [id])
+
+  @@id([plantationId, speciesId])
+  @@index([speciesId])
+  @@map("plantation_species")
+}
+
+model PlantationImage {
+  id           String              @id @default(uuid())
+  plantationId String
+  provider     StorageProviderName
+  objectKey    String
+  mimeType     String
+  width        Int?
+  height       Int?
+  sizeBytes    Int
+  uploadedById String
+  createdAt    DateTime            @default(now())
+  plantation   Plantation          @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  uploadedBy   User                @relation(fields: [uploadedById], references: [id])
+
+  @@index([plantationId])
+  @@map("plantation_images")
+}
+
+model MonitoringUpdate {
+  id                      String                         @id @default(uuid())
+  clientUuid              String?                        @unique
+  plantationId            String
+  userId                  String
+  observedAt              DateTime
+  latitude                Decimal?                       @db.Decimal(10, 7)
+  longitude               Decimal?                       @db.Decimal(10, 7)
+  gpsAccuracyMeters       Decimal?                       @db.Decimal(8, 2)
+  distanceFromPlantation  Decimal?                       @db.Decimal(12, 2)
+  locationValidation      GeoProximityStatus             @default(LOCATION_UNAVAILABLE)
+  healthStatus            HealthCondition
+  estimatedSurvivingTrees Int?
+  estimatedDeadTrees      Int?
+  estimatedHeightCm       Decimal?                       @db.Decimal(8, 2)
+  observation             String
+  verificationStatus      MonitoringVerificationStatus   @default(PENDING)
+  createdAt               DateTime                       @default(now())
+  plantation              Plantation                     @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  user                    User                           @relation(fields: [userId], references: [id])
+  images                  MonitoringImage[]
+
+  @@index([plantationId])
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([createdAt])
+  @@map("monitoring_updates")
+}
+
+model MonitoringImage {
+  id           String              @id @default(uuid())
+  updateId     String
+  provider     StorageProviderName
+  objectKey    String
+  mimeType     String
+  width        Int?
+  height       Int?
+  sizeBytes    Int
+  uploadedById String
+  createdAt    DateTime            @default(now())
+  update       MonitoringUpdate    @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  uploadedBy   User                @relation(fields: [uploadedById], references: [id])
+
+  @@index([updateId])
+  @@map("monitoring_images")
+}
+
+model OfficerInspection {
+  id                    String          @id @default(uuid())
+  clientUuid            String?         @unique
+  plantationId          String
+  officerId             String
+  inspectedAt           DateTime
+  latitude              Decimal?        @db.Decimal(10, 7)
+  longitude             Decimal?        @db.Decimal(10, 7)
+  gpsAccuracyMeters     Decimal?        @db.Decimal(8, 2)
+  estimatedTreeCount    Int?
+  estimatedSurvivalPct  Decimal?        @db.Decimal(5, 2)
+  condition             HealthCondition
+  notes                 String
+  recommendedAction     String?
+  createdAt             DateTime        @default(now())
+  plantation            Plantation      @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  officer               User            @relation(fields: [officerId], references: [id])
+  images                InspectionImage[]
+
+  @@index([plantationId])
+  @@index([officerId])
+  @@index([inspectedAt])
+  @@map("officer_inspections")
+}
+
+model InspectionImage {
+  id           String             @id @default(uuid())
+  inspectionId String
+  provider     StorageProviderName
+  objectKey    String
+  mimeType     String
+  width        Int?
+  height       Int?
+  sizeBytes    Int
+  createdAt    DateTime           @default(now())
+  inspection   OfficerInspection  @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([inspectionId])
+  @@map("inspection_images")
+}
+
+model Comment {
+  id           String            @id @default(uuid())
+  plantationId String
+  userId       String
+  parentId     String?
+  body         String
+  createdAt    DateTime          @default(now())
+  plantation   Plantation        @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id])
+  parent       Comment?          @relation("CommentThread", fields: [parentId], references: [id])
+  replies      Comment[]         @relation("CommentThread")
+  reactions    CommentReaction[]
+
+  @@index([plantationId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model CommentReaction {
+  commentId String
+  userId    String
+  type      String   @default("HELPFUL")
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId, type])
+  @@map("comment_reactions")
+}
+
+model Report {
+  id           String         @id @default(uuid())
+  clientUuid   String?        @unique
+  plantationId String
+  userId       String
+  category     ReportCategory
+  status       ReportStatus   @default(OPEN)
+  description  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  plantation   Plantation     @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id])
+  images       ReportImage[]
+
+  @@index([plantationId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("reports")
+}
+
+model ReportImage {
+  id           String              @id @default(uuid())
+  reportId     String
+  provider     StorageProviderName
+  objectKey    String
+  mimeType     String
+  width        Int?
+  height       Int?
+  sizeBytes    Int
+  uploadedById String
+  createdAt    DateTime            @default(now())
+  report       Report              @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  uploadedBy   User                @relation(fields: [uploadedById], references: [id])
+
+  @@index([reportId])
+  @@map("report_images")
+}
+
+model Verification {
+  id          String                   @id @default(uuid())
+  subjectType VerificationSubjectType
+  subjectId   String
+  decision    VerificationDecision
+  actorId     String
+  notes       String?
+  createdAt   DateTime                 @default(now())
+  actor       User                     @relation(fields: [actorId], references: [id])
+
+  @@index([subjectType, subjectId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("verifications")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  payload   Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  userId  String
+  type    String
+  enabled Boolean @default(true)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, type])
+  @@map("notification_preferences")
+}
+
+model PushDevice {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String
+  platform  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId])
+  @@map("push_devices")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  actorId    String?
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id])
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model EngagementProfile {
+  userId       String   @id
+  confirmedXp  Int      @default(0)
+  ecoPoints    Int      @default(0)
+  level        Int      @default(1)
+  displayTitle String   @default("Seedling")
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("engagement_profiles")
+}
+
+model EngagementRewardRule {
+  eventType             String  @id
+  xpAmount              Int
+  ecoPoints             Int     @default(0)
+  requiresVerification  Boolean @default(true)
+  cooldownHours         Int?
+  dailyCap              Int?
+
+  @@map("engagement_reward_rules")
+}
+
+model XpTransaction {
+  id        String               @id @default(uuid())
+  userId    String
+  eventType String
+  eventId   String
+  amount    Int
+  status    XpTransactionStatus
+  reason    String
+  createdAt DateTime             @default(now())
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventType, eventId])
+  @@index([userId, status])
+  @@index([createdAt])
+  @@map("xp_transactions")
+}
+
+model Badge {
+  id          String      @id @default(uuid())
+  slug        String      @unique
+  name        String
+  description String
+  rule        Json
+  users       UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId     String
+  badgeId    String
+  awardedAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge      Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@map("user_badges")
+}
+
+model Mission {
+  id          String       @id @default(uuid())
+  type        MissionType
+  status      MissionStatus @default(DRAFT)
+  title       String
+  description String
+  campaignId  String?
+  rule        Json
+  createdAt   DateTime     @default(now())
+  campaign    Campaign?    @relation(fields: [campaignId], references: [id])
+  tasks       MissionTask[]
+  users       UserMission[]
+
+  @@index([type, status])
+  @@index([campaignId])
+  @@map("missions")
+}
+
+model MissionTask {
+  id        String  @id @default(uuid())
+  missionId String
+  title     String
+  sortOrder Int     @default(0)
+  rule      Json
+  mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId])
+  @@map("mission_tasks")
+}
+
+model UserMission {
+  id          String            @id @default(uuid())
+  userId      String
+  missionId   String
+  status      UserMissionStatus @default(ASSIGNED)
+  progress    Json?
+  completedAt DateTime?
+  createdAt   DateTime          @default(now())
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     Mission           @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, missionId])
+  @@index([status])
+  @@map("user_missions")
+}
+
+model SpeciesDiscovery {
+  id         String   @id @default(uuid())
+  userId     String
+  speciesId  String
+  discoveredAt DateTime @default(now())
+  plantationId String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  species    Species  @relation(fields: [speciesId], references: [id])
+
+  @@unique([userId, speciesId])
+  @@map("species_discoveries")
+}
+
+model PlantationDiscovery {
+  id           String     @id @default(uuid())
+  userId       String
+  plantationId String
+  discoveredAt DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plantation   Plantation @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, plantationId])
+  @@map("plantation_discoveries")
+}
+
+model PlantationGuardian {
+  userId       String
+  plantationId String
+  followedAt   DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plantation   Plantation @relation(fields: [plantationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, plantationId])
+  @@map("plantation_guardians")
+}
+
+model StewardshipStreak {
+  id             String    @id @default(uuid())
+  userId         String
+  plantationId   String?
+  months         Int
+  lastVerifiedAt DateTime
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("stewardship_streaks")
+}
+
+model CommunityChallenge {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  scope       String
+  goal        Int
+  campaignId  String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  createdAt   DateTime @default(now())
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+  progress    ChallengeProgress[]
+
+  @@map("community_challenges")
+}
+
+model ChallengeProgress {
+  challengeId  String
+  participantKey String
+  amount       Int      @default(0)
+  updatedAt    DateTime @updatedAt
+  challenge    CommunityChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@id([challengeId, participantKey])
+  @@map("challenge_progress")
+}

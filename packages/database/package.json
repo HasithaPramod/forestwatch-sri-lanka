@@ -1,0 +1,33 @@
+{
+  "name": "@forestwatch/database",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "prisma"],
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "scripts": {
+    "build": "prisma generate && tsc",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prisma:generate": "prisma generate",
+    "migrate": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev --name init",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@forestwatch/config": "workspace:*",
+    "@forestwatch/types": "workspace:*",
+    "@prisma/client": "^6.16.2"
+  },
+  "devDependencies": {
+    "argon2": "^0.44.0",
+    "dotenv": "^16.6.1",
+    "prisma": "^6.16.2",
+    "tsx": "^4.20.5"
+  }
+}

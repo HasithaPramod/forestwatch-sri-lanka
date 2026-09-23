@@ -1,0 +1,36 @@
+{
+  "name": "@forestwatch/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@forestwatch/api-client": "workspace:*",
+    "@forestwatch/config": "workspace:*",
+    "@forestwatch/engagement": "workspace:*",
+    "@forestwatch/i18n": "workspace:*",
+    "@forestwatch/types": "workspace:*",
+    "leaflet": "^1.9.4",
+    "next": "^15.5.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-leaflet": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/leaflet": "^1.9.22",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "autoprefixer": "^10.4.21",
+    "eslint-config-next": "^15.5.4",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.2"
+  }
+}

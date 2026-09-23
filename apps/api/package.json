@@ -1,0 +1,47 @@
+{
+  "name": "@forestwatch/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@forestwatch/auth": "workspace:*",
+    "@forestwatch/config": "workspace:*",
+    "@forestwatch/database": "workspace:*",
+    "@forestwatch/engagement": "workspace:*",
+    "@forestwatch/sri-lanka-locations": "workspace:*",
+    "@forestwatch/storage": "workspace:*",
+    "@forestwatch/types": "workspace:*",
+    "@forestwatch/utils": "workspace:*",
+    "@forestwatch/validation": "workspace:*",
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/swagger": "^11.2.0",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.6.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/testing": "^11.1.6",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^22.18.6",
+    "typescript": "^5.9.2"
+  }
+}

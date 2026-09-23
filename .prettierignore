@@ -1,0 +1,9 @@
+node_modules
+dist
+.next
+.turbo
+.expo
+coverage
+uploads
+pnpm-lock.yaml
+docs/FORESTWATCH_SRI_LANKA.md
