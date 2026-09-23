@@ -38,7 +38,8 @@ async function bootstrap(): Promise<void> {
   });
 
   if (env.STORAGE_PROVIDER === 'local') {
-    const root = path.resolve(env.STORAGE_LOCAL_ROOT);
+    const root =
+      process.env.VERCEL === '1' ? path.join('/tmp', 'forestwatch-uploads') : path.resolve(env.STORAGE_LOCAL_ROOT);
     mkdirSync(root, { recursive: true });
     app.use(`${API_PREFIX}/files`, express.static(root));
   }
