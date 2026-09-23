@@ -79,4 +79,6 @@ After migrate+seed, development logins are `superadmin@localhost` (and the other
 
 ## Vercel Hobby
 
-Vercel does not run Docker and does not host PostgreSQL. See [docs/deployment.md](docs/deployment.md): two projects (`apps/web`, `apps/api`), hosted PostGIS, Supabase storage.
+Vercel does not run Docker and does not host PostgreSQL. See [docs/deployment.md](docs/deployment.md).
+
+If you import the **repository root**, Vercel now builds only the Next.js web app (`vercel-build`). Create a **second** Vercel project with Root Directory `apps/api` for NestJS. After the API URL exists, set `NEXT_PUBLIC_API_URL` on the web project to `https://<api>.vercel.app/api/v1` and redeploy.

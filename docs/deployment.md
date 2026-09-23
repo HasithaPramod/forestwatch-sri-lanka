@@ -65,14 +65,16 @@ pnpm db:migrate
 ### 2. Web project
 
 1. Import the Git repo at [vercel.com/new](https://vercel.com/new)
-2. Root Directory: `apps/web`
-3. Include source files outside the Root Directory (pnpm workspace)
-4. Install / build commands come from `apps/web/vercel.json`
-5. Environment:
+2. Root Directory: leave as the repository root (uses `vercel.json` + `vercel-build`, web only) **or** set `apps/web`
+3. Include source files outside the Root Directory if you choose `apps/web`
+4. Framework: Next.js
+5. Environment (optional on the first deploy):
 
 | Name | Value |
 | --- | --- |
 | `NEXT_PUBLIC_API_URL` | `https://<api-project>.vercel.app/api/v1` |
+
+If this is unset, the web build still succeeds and calls `/api/v1` on the same host until you add the API project and redeploy.
 
 ### 3. API project
 
