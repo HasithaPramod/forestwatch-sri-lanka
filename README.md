@@ -81,4 +81,6 @@ After migrate+seed, development logins are `superadmin@localhost` (and the other
 
 Vercel does not run Docker and does not host PostgreSQL. See [docs/deployment.md](docs/deployment.md).
 
-If you import the **repository root**, Vercel now builds only the Next.js web app (`vercel-build`). Create a **second** Vercel project with Root Directory `apps/api` for NestJS. After the API URL exists, set `NEXT_PUBLIC_API_URL` on the web project to `https://<api>.vercel.app/api/v1` and redeploy.
+**Root Directory must be `apps/web`.** The repo root has no `next` package, so a root import fails with “No Next.js version detected.” In the existing Vercel project: Settings → General → Root Directory → `apps/web` → enable Include source files outside the Root Directory → Redeploy.
+
+Create a second Vercel project with Root Directory `apps/api` for NestJS. After that URL exists, set `NEXT_PUBLIC_API_URL` on the web project to `https://<api>.vercel.app/api/v1` and redeploy.

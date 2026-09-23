@@ -10,7 +10,6 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "vercel-build": "pnpm exec turbo build --filter=@forestwatch/web",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test --concurrency=1",

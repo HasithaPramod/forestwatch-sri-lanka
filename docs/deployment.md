@@ -65,8 +65,8 @@ pnpm db:migrate
 ### 2. Web project
 
 1. Import the Git repo at [vercel.com/new](https://vercel.com/new)
-2. Root Directory: leave as the repository root (uses `vercel.json` + `vercel-build`, web only) **or** set `apps/web`
-3. Include source files outside the Root Directory if you choose `apps/web`
+2. **Root Directory: `apps/web`** (required — `next` is not in the repo-root `package.json`)
+3. Enable Include source files outside the Root Directory
 4. Framework: Next.js
 5. Environment (optional on the first deploy):
 
