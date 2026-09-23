@@ -9,19 +9,12 @@ export const LOCALE_STORAGE_KEY = 'forestwatch.locale';
 export const NAV_ITEMS = [
   { href: '/', labelKey: 'nav.home' },
   { href: '/map', labelKey: 'nav.map' },
-  { href: '/locations', labelKey: 'nav.locations' },
-  { href: '/search', labelKey: 'nav.search' },
   { href: '/campaigns', labelKey: 'nav.campaigns' },
-  { href: '/species', labelKey: 'nav.species' },
-  { href: '/plantations', labelKey: 'nav.plantations' },
-  { href: '/reports', labelKey: 'nav.reports' },
-  { href: '/notifications', labelKey: 'nav.notifications' },
-  { href: '/review', labelKey: 'nav.review' },
-  { href: '/forestquest', labelKey: 'nav.forestquest' },
   { href: '/impact', labelKey: 'nav.impact' },
-  { href: '/dashboard', labelKey: 'nav.dashboard' },
   { href: '/about', labelKey: 'nav.about' },
 ] as const;
+
+export const ACCOUNT_NAV_ITEMS = [{ href: '/dashboard', labelKey: 'nav.dashboard' }] as const;
 
 type MessageNode = string | { [key: string]: MessageNode };
 

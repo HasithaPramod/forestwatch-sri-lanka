@@ -12,13 +12,12 @@ export function LanguageSwitcher() {
         <button
           key={code}
           type="button"
-          className={`rounded-full px-2 py-1 text-xs md:px-3 ${
+          className={`rounded-full px-2 py-1 text-xs ${
             locale === code ? 'bg-forest-800 text-cream' : 'border border-forest-800/20 text-forest-800'
           }`}
           onClick={() => void setLocale(code)}
         >
-          <span className="md:hidden">{t(`locale.short.${code}`)}</span>
-          <span className="hidden md:inline">{t(`locale.${code}`)}</span>
+          {t(`locale.short.${code}`)}
         </button>
       ))}
     </div>

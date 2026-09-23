@@ -3,15 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { NAV_ITEMS } from '@forestwatch/i18n';
+import { ACCOUNT_NAV_ITEMS, NAV_ITEMS } from '@forestwatch/i18n';
 import { AuthNav } from '@/components/auth-nav';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { useAuth } from '@/lib/auth-context';
 import { useI18n } from '@/lib/i18n-context';
 
 export function SiteHeader() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const items = user ? [...NAV_ITEMS, ...ACCOUNT_NAV_ITEMS] : [...NAV_ITEMS];
 
   useEffect(() => {
     setOpen(false);
@@ -19,18 +22,31 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-forest-900/10 bg-cream/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="min-w-0 truncate font-display text-lg tracking-tight text-forest-800 sm:text-xl">
+      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+        <Link href="/" className="shrink-0 font-display text-base tracking-tight text-forest-800 sm:text-lg">
           {t('site.name')}
         </Link>
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <nav aria-label="Primary" className="hidden min-w-0 flex-1 items-center justify-center gap-4 text-sm md:flex">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={
+                pathname === item.href ? 'font-semibold text-forest-800' : 'text-ink/75 hover:text-forest-700'
+              }
+            >
+              {t(item.labelKey)}
+            </Link>
+          ))}
+        </nav>
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          <div className="hidden xl:block">
+          <div className="hidden md:block">
             <AuthNav />
           </div>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-forest-800/30 text-forest-800 xl:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-forest-800/30 text-forest-800 md:hidden"
             aria-expanded={open}
             aria-controls="site-menu"
             onClick={() => setOpen((current) => !current)}
@@ -40,19 +56,10 @@ export function SiteHeader() {
           </button>
         </div>
       </div>
-      <nav aria-label="Primary" className="hidden border-t border-forest-900/10 xl:block">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm">
-          {NAV_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href} className="text-ink/80 hover:text-forest-700">
-              {t(item.labelKey)}
-            </Link>
-          ))}
-        </div>
-      </nav>
       {open ? (
-        <nav id="site-menu" aria-label={t('nav.menu')} className="border-t border-forest-900/10 xl:hidden">
+        <nav id="site-menu" aria-label={t('nav.menu')} className="border-t border-forest-900/10 md:hidden">
           <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
-            {NAV_ITEMS.map((item) => (
+            {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

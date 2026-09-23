@@ -9,21 +9,6 @@ describe('public copy', () => {
   });
 
   it('exposes the public navigation routes', () => {
-    expect(NAV_ITEMS.map((item) => item.href)).toEqual([
-      '/',
-      '/map',
-      '/locations',
-      '/search',
-      '/campaigns',
-      '/species',
-      '/plantations',
-      '/reports',
-      '/notifications',
-      '/review',
-      '/forestquest',
-      '/impact',
-      '/dashboard',
-      '/about',
-    ]);
+    expect(NAV_ITEMS.map((item) => item.href)).toEqual(['/', '/map', '/campaigns', '/impact', '/about']);
   });
 });
